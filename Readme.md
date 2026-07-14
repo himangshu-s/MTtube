@@ -10,3 +10,11 @@
 # DevDependencies in a package.json file are software tools and packages that you only need while building and testing your app. Unlike core dependencies, they are excluded from production deployments to keep your final bundle lightweight
 
 # after installing prettier, make an file .prettierrs
+
+# so there may be problem when connecting to the databses , so ita always better to add it inside try catch block.
+
+# otherwise use promises, the resolve and reject also handles it.
+# and also we alwways keep database far away in naotjher system , so it takes time to respond, so always use async await . 
+
+# since the dptenv still uses require syntax from commonjs, so we havae to edit the package.json like this = "dev": "nodemon -r dotenv/config --experimental-json-modulessrc/index.js"
+  
