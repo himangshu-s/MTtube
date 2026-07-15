@@ -17,4 +17,23 @@
 # and also we alwways keep database far away in naotjher system , so it takes time to respond, so always use async await . 
 
 # since the dptenv still uses require syntax from commonjs, so we havae to edit the package.json like this = "dev": "nodemon -r dotenv/config --experimental-json-modulessrc/index.js"
-  
+
+# try...catch and app.on("error") handle different kinds of errors.
+try...catch catches errors that occur immediately while the code inside the try block is executing, such as a failed mongoose.connect().
+app.on("error") registers an event listener that waits for future "error" events emitted by the application.
+After the try block finishes, it cannot catch errors that happen later while the server is running.
+app.on("error") (or more commonly server.on("error")) is used to handle runtime errors that occur after the application has started.
+In short: try...catch handles execution-time exceptions, while .on("error") listens for runtime error events.
+
+ # now got to npm and download cookie-parser and also cors
+
+# when we need to use a middleware or configurstion settings, we use app.use()
+
+#  A middleware is a function that runs between the client's request and the server's response. It can inspect, modify, or stop the request before it reaches the route handler, or process the response afterward. Middleware is commonly used for authentication, logging, validation, and parsing request data. Multiple middleware functions execute in order using next() to pass control to the next one.
+
+# (err, req, res, next) is the signature of an Express error-handling middleware. Express recognizes it as an error handler because it has 4 parameters (instead of the usual 3).
+ # Parameters= err → The error object that was thrown or passed using next(error).
+# req → The incoming request object.
+# res → The response object used to send a response to the client.
+# next → Passes control to the next middleware or error handler (if needed).
+

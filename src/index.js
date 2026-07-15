@@ -7,6 +7,9 @@ require('dotenv').config()
 
 so instead of this syntax we will use
 */
+
+import dns from "dns";
+dns.setServers(["8.8.8.8", "1.1.1.1"]);  
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 // then we have to config the doptenv just like the common js syntax
@@ -17,8 +20,27 @@ dotenv.config({
 
 
 
-connectDB();
+connectDB()
+// inthe db folder, we write async function which alwayas returns a promise. so 
+.then(()=>{
+   const server=  listen(process.env.PORT || 3000, ()=>{
+        console.log(`server is running on port ${process.env.PORT}`)
 
+    })
+    /*
+// app.listen() returns the HTTP server, so use server.on("error") because server errors are emitted by the server, not the Express app.
+// the errors are = Port already in use (EADDRINUSE)
+Permission denied
+Network-related server errors
+*/
+    server.on("error",(error)=>{    
+console.log("error", error)
+throw error;
+    })
+})
+.catch((err)=>{
+    console.log("MONGO DB CONNECTION ERROR ", err)
+})
 
 
 
