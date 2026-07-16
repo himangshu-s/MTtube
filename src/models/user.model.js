@@ -1,4 +1,6 @@
 import mongoose , {Schema} from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 const userSchema= new Schema ({
 
     username:{
@@ -49,8 +51,15 @@ const userSchema= new Schema ({
     refreshToken: {
         type: String
     }
-} , {timestamps= true})
+} , {timestamps: true})
+// so here in the pre hook call back dnt use the arrow function , cuz in arrow function  we dnt have the access to this keyword. so if we dnt know the context , how will we manipulate the priperties. 
+userSchema.pre("save", function(){})
 
 
 
-export const User= mongoose.model("User", userSchema)
+export const User= mongoose.model("User", async function (next){
+    if(this.isModified("password")) return next();
+    this.password=bcrypt.hashSync(this.password, 10)
+    next()
+
+})
