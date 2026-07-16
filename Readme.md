@@ -37,3 +37,48 @@ In short: try...catch handles execution-time exceptions, while .on("error") list
 # res → The response object used to send a response to the client.
 # next → Passes control to the next middleware or error handler (if needed).
 
+# 1. connectDB() errors (Startup Errors)
+# These happen once, when your application start
+# Possible errors:Wrong MongoDB URI
+# Wrong username/password
+# Database server is down
+# Internet connection issue
+
+# If connectDB() fails, the server may never start.
+
+# 2. asyncHandler errors (Request/Runtime Errors)
+
+# These happen after the server has started, when a client sends a request.
+# Possible errors:
+
+# Invalid database query
+# User.findById() throws an error
+# File upload fails
+# Any error while processing that specific request
+
+# The server keeps running; only that request fails and the error is sent to the error-handling middleware.
+
+# Application starts
+       │
+       ▼
+# connectDB()  ← Startup error handled by try...catch
+       │
+       ▼
+# Server starts listening
+       │
+       ▼
+# User sends Request 1
+       │
+       ▼
+# asyncHandler catches request errors
+       │
+       ▼
+# User sends Request 2
+       │
+       ▼
+# asyncHandler catches request errors
+
+
+
+
+# there is a whole class for error messages in node js. the name of the class is Error. go to this link= https://nodejs.org/api/errors.html
