@@ -82,3 +82,9 @@ In short: try...catch handles execution-time exceptions, while .on("error") list
 
 
 # there is a whole class for error messages in node js. the name of the class is Error. go to this link= https://nodejs.org/api/errors.html
+
+
+# aftaer making the data midels of user and video we installs a package mongoose-aggregate 
+# after that install jsonwebtoken and bcrypt from npm
+
+# so now we will use some mongoose hooks like 'pre' means we will do something before storing the data , means converting the data into encryption
