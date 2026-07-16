@@ -1,6 +1,14 @@
-// so every time we talk to the databse, are we gonna write the try catch wapper every time i use, no right, so we made an utility file insiod which tghere is geenralised function for this. and everytime wehen we neeed to connect with the databases, we just call this function.  
+/*
+asyncHandler is a higher-order function that takes an async route handler (requestHandler)
+and returns a new Express middleware function. Express executes this returned middleware
+for every request, which then calls requestHandler(req, res, next). Promise.resolve(...).catch(next)
+automatically catches any async errors and forwards them to Express's error-handling middleware,
+saving us from writing try...catch and next(err) in every route. This is different from the
+try...catch used in connectDB(), which only handles database connection errors during server startup.
+*/
+
 const asyncHandler =(requestHandler)=>{
-    (req,res, next)=>{
+    return (req,res, next)=>{
         Promise.resolve(requestHandler(req,res,next)).catch((err) => next())
     }
 
@@ -9,6 +17,13 @@ const asyncHandler =(requestHandler)=>{
 
 
 export default asyncHandler;
+/* asyncHandler takes an async requestHandler function as an
+ argument and returns a new Express middleware
+  function (req, res, next). When a request comes ,  Express executes this returned
+   middleware, it calls requestHandler(req, res, next) and 
+   automatically catches any errors using Promise.resolve(...).catch(next), forwarding them to Express's error handler.
+*/
+
 /*
 this is for try catch part, but we will use promise 
 
