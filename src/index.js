@@ -13,6 +13,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 // then we have to config the doptenv just like the common js syntax
+import app from "./app.js"
 dotenv.config({
     path: './.env'
 })
@@ -23,7 +24,7 @@ dotenv.config({
 connectDB()
 // inthe db folder, we write async function which alwayas returns a promise. so 
 .then(()=>{
-   const server=  listen(process.env.PORT || 3000, ()=>{
+   const server=  app.listen(process.env.PORT || 3000, ()=>{
         console.log(`server is running on port ${process.env.PORT}`)
 
     })

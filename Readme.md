@@ -536,3 +536,15 @@ Cloudinary
 ✅ The temporary file should be deleted after upload (or after a failed upload).
 
 ✅ Only the Cloudinary URL should be stored in MongoDB, **not** the temporary file path.
+
+# Method	Purpose	Example
+GET=	Retrieve data	Get all users
+POST=	Create new data	Create a new user
+PUT=	Replace/update an entire resource	Update all user details
+PATCH=	Partially update a resource	Update only the user's email
+DELETE	=Remove a resource	Delete a user
+HEAD=	Get headers only (no response body)	Check if a file exists
+OPTIONS=	Get supported methods for a resource	Browser CORS preflight request
+
+# if we are exporting default *** , thenin import we will use import ** from 
+# if we are exporting like export {}, then we will import {} from "
