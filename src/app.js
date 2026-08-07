@@ -23,8 +23,8 @@ app.use(express.static("public")) // there may be some pdfs or other files which
 
 app.use(cookieParser())  // to set up and accept browser cookies.
 
-// now ccokie-parser
-app.use(cookieParser)
+
+
 
 // routes import
 import userRouter from "./routes/user.routes.js"
@@ -33,6 +33,6 @@ import userRouter from "./routes/user.routes.js"
 
 // routes declaration
 // now we will use middle wher
-app.use("api/v1/users" , userRouter) // when the url becomes /users , thennthe control passes to userRouter , 
+app.use("/api/v1/users" , userRouter) // when the url becomes /users , thennthe control passes to userRouter , 
 
 export default app;
