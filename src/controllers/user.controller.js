@@ -1,5 +1,8 @@
 import asyncHandler from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/apiError.js"
+import {Uuser} from "../models/user.model.js"
+import {uploadOnCloudanary} from "../utils/cloudinary.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
 const registerUser= asyncHandler(async(req, res)=>{
   // get user details from frontend. 
   // validation - not empty
@@ -28,7 +31,62 @@ whereas , for the urls , we will handke it dofferently.
  ){
      throw new ApiError(400, " all fields are required")
  }
+
+// now we javae to check whether the user is already there or not
+const existedUser= User.findOne({
+  $or:[{username},{email}] // its a operator , we can use operator by using $
 })
+if(existedUser){
+  throw new ApiError(400, "user already exists")
+}
+// chcek for images 
+// so we know that req.body gives us all the data frommbackend, but since we add a middleweare mukter for the 
+// files, then it added files in the req object. so we can access it by req.files
+
+const avatarLocalPath=req.files?.avatar[0]?.path;
+
+const coverImageLocalPath=req.files?.coverImage[0]?.path;
+// dcheck if avatar properly aya hai ki nhi
+if(!avatarLocalPath){
+  throw new ApiError(400, "avatar is required")
+}
+
+// now upload into the cloudanary
+const avatar= await uploadOnCloudanary(avatarLocalPath)
+const coverImage= await uploadOnCloudanary(coverImageLocalPath)
+// again check for avatar cuz avatar required filed hai and agar avatar nhi gya toh database fatega
+if(!avatar){
+  throw new ApiErrro(400,"Avatar is required")
+}
+
+// now make an object and database mai entry mar do
+// create is a methode that takes object
+const user= await User.create({ // since creation takes time, so await
+  fullName,
+  avatar: avatar.url,
+  // now we didn't checkmcoverimage aya upload hua hai ki nhi cuz its not compulsory , but if kisi reason ki wajh se nhi hua 
+  // and we try to upload dit in the databases , the code fatega, so if upload hua then upload in databse otherwise empty string
+  coverImage: coverImage?.url|| "",
+  email,
+  password,
+  username:username.toLowerCase()
+})
+// hum isme trying to check whether the user really created or not
+// agar sahi mai user create huahai , toh mongodb automatically har ek data ke sath el _id generate krta hai. \
+
+const createdUser= await user.findById(user._id).select(
+  "-password -refreshToken"  // yhan pe hum likhtebhai jo jo hum e nhi chahiye database mai
+)
+
+// now u will handle is user not created properly
+if(!createdUser){
+  throw new ApiError(500, "somethung went wrong while registering the user")}
+})
+
+// now return a response
+return res.status(201).json(
+  new ApiResponse(200, createdUser, "User registered successfully")
+)
 
 
 export  {registerUser}

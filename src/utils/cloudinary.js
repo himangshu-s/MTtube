@@ -30,3 +30,5 @@ return response;
   }
 
 }
+
+export {uploadOnCloudanary}
