@@ -9,3 +9,5 @@
  }
 
  export {ApiResponse}
+
+ // here we made the class , now we can create new javascript 0objects based on this class in different dofferent files just like we did in register controller. 

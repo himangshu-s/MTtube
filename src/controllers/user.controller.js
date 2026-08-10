@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/apiError.js"
-import {Uuser} from "../models/user.model.js"
+import {User} from "../models/user.model.js"
 import {uploadOnCloudanary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 const registerUser= asyncHandler(async(req, res)=>{
@@ -27,13 +27,14 @@ whereas , for the urls , we will handke it dofferently.
 // we can use map too but we have to retunr many more thung in map
  if(
     [fullName, email, username, password].some((field)=>
-    field?.trim()==="")   
+    field?.trim()==="")  
+    // .some() checks whether at least one element in an array satisfies a condition. 
  ){
      throw new ApiError(400, " all fields are required")
  }
 
 // now we javae to check whether the user is already there or not
-const existedUser= User.findOne({
+const existedUser= await User.findOne({
   $or:[{username},{email}] // its a operator , we can use operator by using $
 })
 if(existedUser){
@@ -42,9 +43,8 @@ if(existedUser){
 // chcek for images 
 // so we know that req.body gives us all the data frommbackend, but since we add a middleweare mukter for the 
 // files, then it added files in the req object. so we can access it by req.files
-
-const avatarLocalPath=req.files?.avatar[0]?.path;
-
+// ?. This is called optional chaining.
+const avatarLocalPath=req.files?.avatar[0]?.path;  // avatar is the array and avatar[0] means the first avatar in the avatar array
 const coverImageLocalPath=req.files?.coverImage[0]?.path;
 // dcheck if avatar properly aya hai ki nhi
 if(!avatarLocalPath){
@@ -74,9 +74,11 @@ const user= await User.create({ // since creation takes time, so await
 // hum isme trying to check whether the user really created or not
 // agar sahi mai user create huahai , toh mongodb automatically har ek data ke sath el _id generate krta hai. \
 
-const createdUser= await user.findById(user._id).select(
+const createdUser= await User.findById(user._id).select(
   "-password -refreshToken"  // yhan pe hum likhtebhai jo jo hum e nhi chahiye database mai
-)
+) // it means When returning this user object to the client, don't include the password and refresh token."
+// Your database still contains them
+
 
 // now u will handle is user not created properly
 if(!createdUser){
@@ -86,7 +88,9 @@ if(!createdUser){
 // now return a response
 return res.status(201).json(
   new ApiResponse(200, createdUser, "User registered successfully")
-)
+)/*  201 is the actual http status , and by using new we are creatimf a new object based on ApiResponse class, 
+200 is the statuscode, createdUser is the data, then message and then success= true
 
+*/
 
 export  {registerUser}

@@ -548,3 +548,99 @@ OPTIONS=	Get supported methods for a resource	Browser CORS preflight request
 
 # if we are exporting default *** , thenin import we will use import ** from 
 # if we are exporting like export {}, then we will import {} from "
+
+# multer creats sthe re.files like this= 
+
+{
+    avatar: [
+        {
+            fieldname: "avatar",
+            originalname: "photo.jpg",
+            path: "./public/temp/photo.jpg"
+        }
+    ],
+
+    coverImage: [
+        {
+            fieldname: "coverImage",
+            originalname: "cover.jpg",
+            path: "./public/temp/cover.jpg"
+        }
+    ]
+}
+
+
+
+#  User selects image
+       ↓
+Frontend sends image
+       ↓
+Multer receives image
+       ↓
+Multer saves it temporarily
+       ↓
+req.files
+       ↓
+req.files.avatar[0].path
+       ↓
+Local image path
+       ↓
+Cloudinary
+       ↓
+Cloudinary URL
+       ↓
+MongoDB
+
+
+
+# important
+Suppose your users collection contains:
+
+USER 1
+{
+    _id: "AAA",
+    username: "himu",
+    avatar: "avatar1.jpg",
+    coverImage: "cover1.jpg",
+    password: "xxx"
+}
+
+USER 2
+{
+    _id: "BBB",
+    username: "rahul",
+    avatar: "avatar2.jpg",
+    coverImage: "cover2.jpg",
+    password: "yyy"
+}
+
+USER 3
+{
+    _id: "CCC",
+    username: "john",
+    avatar: "avatar3.jpg",
+    coverImage: "cover3.jpg",
+    password: "zzz"
+}
+
+
+Each user/document has ONE _id.
+
+The fields inside that document don't have separate _ids.
+
+Think about _id as the "address" of a document
+
+This is probably the easiest mental model.
+
+                    MongoDB
+                       │
+        ┌──────────────┼──────────────┐
+        ↓              ↓              ↓
+     _id: AAA       _id: BBB       _id: CCC
+        │              │              │
+        ↓              ↓              ↓
+   Himangshu         Rahul           John
+   username          username       username
+   avatar            avatar         avatar
+   email             email          email
+   coverImage        coverImage     coverImage
