@@ -1,4 +1,6 @@
 import mongoose , {Schema} from "mongoose";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 const userSchema= new Schema ({
 
     username:{
@@ -51,11 +53,12 @@ const userSchema= new Schema ({
     }
 } , {timestamps: true})
 
-userSchema.pre("save", async function(next){
-    if(!this.isModified("password")) return next();
-    this.password= await bcrypt.hashSync(this.password , 10)
-    next()
-})
+/* You declared this as an async function. In Mongoose 9 (what you have), when a pre-hook is async, Mongoose expects you to just return/throw — it does not bother passing you a real next callback anymore, because it already knows to wait for your promise to resolve. So next inside your function body is undefined, and calling next() throws TypeError: next is not a function.
+*/ 
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 userSchema.methods.isPasswordCorrect= async function (password){
     return await bcrypt.compare(password, this.password)

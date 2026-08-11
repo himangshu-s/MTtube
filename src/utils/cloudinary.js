@@ -18,13 +18,13 @@ const response = await cloudinary.uploader.upload(localFilePath,{  // it will de
 })
 // file upload succesfull
 console.log("file is uplaoded on cloudinary", response.url);
-fs.unlinkSync(localfilePath)
+fs.unlinkSync(localFilePath)
 // now im future whewn file will be uploaded in the  cloudinary , it will be automatically removed from the temp folder 
 return response;
   }catch(error){
     // so here if we are doing this for cloudinaruy , then we know that the fileis in the local server already. so 
     // if we dnt remove them after upoading or after any errro happens, then ther couild be gathering of many corrupted fuiles and malicious files. so to remove them, we unlink them.
-    fs.unlink(localFilePath)
+    fs.unlinkSync(localFilePath)
     return null; 
     
      

@@ -1,5 +1,5 @@
 import asyncHandler from "../utils/asyncHandler.js"
-import {ApiError} from "../utils/apiError.js"
+import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import {uploadOnCloudanary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -44,8 +44,16 @@ if(existedUser){
 // so we know that req.body gives us all the data frommbackend, but since we add a middleweare mukter for the 
 // files, then it added files in the req object. so we can access it by req.files
 // ?. This is called optional chaining.
+console.log(req.files);
 const avatarLocalPath=req.files?.avatar[0]?.path;  // avatar is the array and avatar[0] means the first avatar in the avatar array
-const coverImageLocalPath=req.files?.coverImage[0]?.path;
+// const coverImageLocalPath=req.files?.coverImage[0]?.path;  // cuz yhan pe hum expect kr rhe hai ki agr req.files hai toh usme coverImage hoga hi hoga, what if nhi hua, toh kya hoga, thats why it should be handledd prpperly
+// coverImage is not necessary , but if someday we dmt send coverimage then it will throw error, its not a backend probloem, its javascript. so since it dnt have thorw error, so we will use classic if else for this
+let coverImageLocalPath ;
+// first req.files aya hai ki nhi , then array hai ki nhi9 yeh , and lsst mai array ka size more than 0 hai ki nhi. 
+if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length >0){
+  coverImageLocalPath= req.files.coverImage[0].path
+}
+// yhan pe then agr coverImage nhi hua toh cloudinary apne se ek nempty string de deti hai. 
 // dcheck if avatar properly aya hai ki nhi
 if(!avatarLocalPath){
   throw new ApiError(400, "avatar is required")
@@ -56,7 +64,7 @@ const avatar= await uploadOnCloudanary(avatarLocalPath)
 const coverImage= await uploadOnCloudanary(coverImageLocalPath)
 // again check for avatar cuz avatar required filed hai and agar avatar nhi gya toh database fatega
 if(!avatar){
-  throw new ApiErrro(400,"Avatar is required")
+  throw new ApiError(400,"Avatar is required")
 }
 
 // now make an object and database mai entry mar do

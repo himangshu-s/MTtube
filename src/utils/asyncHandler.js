@@ -9,7 +9,7 @@ try...catch used in connectDB(), which only handles database connection errors d
 
 const asyncHandler =(requestHandler)=>{
     return (req,res, next)=>{
-        Promise.resolve(requestHandler(req,res,next)).catch((err) => next())
+        Promise.resolve(requestHandler(req,res,next)).catch((err) => next(err))
     }
 
 
