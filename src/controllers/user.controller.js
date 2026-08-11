@@ -83,8 +83,6 @@ const createdUser= await User.findById(user._id).select(
 // now u will handle is user not created properly
 if(!createdUser){
   throw new ApiError(500, "somethung went wrong while registering the user")}
-})
-
 // now return a response
 return res.status(201).json(
   new ApiResponse(200, createdUser, "User registered successfully")
@@ -92,5 +90,9 @@ return res.status(201).json(
 200 is the statuscode, createdUser is the data, then message and then success= true
 
 */
+
+})
+
+
 
 export  {registerUser}

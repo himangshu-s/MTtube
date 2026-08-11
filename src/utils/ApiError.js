@@ -33,7 +33,7 @@ A stack trace records the sequence of function calls that led to an error, makin
 
 }
 
-export default ApiError;
+export {ApiError};
  
 /*
 The constructor is a special method that runs automatically whenever a new ApiError object is created using `new ApiError(...)`. The values passed while creating the object (such as statusCode, message, errors, and stack) become the constructor arguments, which are then used to initialize the object's properties. `super(message)` calls the parent Error class constructor to set the default error message, while `this.statusCode`, `this.message`, `this.errors`, etc., create and store custom properties specific to ApiError. Default values like `message = "Something went wrong"` and `errors = []` are used when those arguments are not provided, ensuring every error object has a consistent structure.
