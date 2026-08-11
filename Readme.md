@@ -644,3 +644,7 @@ This is probably the easiest mental model.
    avatar            avatar         avatar
    email             email          email
    coverImage        coverImage     coverImage
+
+
+
+   # to test by using postman, first open it and select the http methose , we are now using POST . Then select body and from the drop down menu select the form data if u wanna send fioes too along with the data then select form-data , and if only data , then u can use json and form-data both. 

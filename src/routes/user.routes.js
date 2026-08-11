@@ -8,7 +8,7 @@ router.route("/register").post(
         {name:"avatar",
     maxCount:1},
     {
-      name:"coverPhoto",
+      name:"coverImage",
       maxCount:1  
     }
     ]),

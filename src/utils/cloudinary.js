@@ -17,8 +17,9 @@ const response = await cloudinary.uploader.upload(localFilePath,{  // it will de
   resource_type:"auto" // these are the methods or properties we have to read it from the documentation.
 })
 // file upload succesfull
-console.log("file is uplaoded on cloudinary", 
-  response.url);
+console.log("file is uplaoded on cloudinary", response.url);
+fs.unlinkSync(localfilePath)
+// now im future whewn file will be uploaded in the  cloudinary , it will be automatically removed from the temp folder 
 return response;
   }catch(error){
     // so here if we are doing this for cloudinaruy , then we know that the fileis in the local server already. so 
