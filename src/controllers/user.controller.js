@@ -3,6 +3,37 @@ import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import {uploadOnCloudanary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
+// well this is coming from the secodn steo mean from the login page part. 
+// since we will use the access token thing many times , so we make an methode for this amd whenever we neeed to gemerate access token ,we just call it
+
+const generateAccessAndrefreshTokens= async(userId)=>{
+  try{
+    const user= await User.findById(userId)
+    const accessToken= user.generateAccessToken()
+   const refreshToken= user.generateRefreshToken()
+
+   // now we need to store the refreshtoken in the databses
+   // the user is a object document, so till now the refreshtoken is null , so we updated the refreshtoken  in the memory only for now.
+   user.refreshToken= refreshToken
+  // user.save()
+   // but when we call ssave, since its mongoose , so the other properties try to get sav etoo , like the password , b ut we dnt have passwprd here right, so what we do is
+ await  user.save({validateBeforeSave:false}) // saves the user document in mongoose 
+
+ return {accessToken, refreshToken}
+  }
+  catch(error){
+
+throw new ApiError(500, "somethng went wrong while generating refresh and acces token")
+  }
+}
+
+
+
+
+
+
+
+
 const registerUser= asyncHandler(async(req, res)=>{
   // get user details from frontend. 
   // validation - not empty
@@ -101,6 +132,64 @@ return res.status(201).json(
 
 })
 
+const loginUser=asyncHandler(async(req, res)=>{
+  /* algo=>
+  req body-> data
+  //chcek username and email
+  fimd the user
+  password check
+  generate access tokena nd refresh token
+   send cookies
+  */ 
+
+   const {username, email, password}=req.body 
+   if(!username || !email){
+    throw new ApiError(400,"username or email is required")
+   }
+// In Mongoose, findOne() searches your MongoDB collection and returns the first document that matches your condition.
+/* if findOne() finds a user, user contains that user's all data from MongoDB. The properties are not empty.
+now we can do user.username , user.fullName etc
+
+Here:
+
+User → your Mongoose model
+user → the actual user document found in MongoDB
+*/ 
+  const user = await User.findOne({
+    $or: [{username}, {email}] // this methofe is to write object in by using or
+
+   })
+   if(!user){
+    throw new ApiError(404, "user not found")
+   }
+
+  const isPasswordValid= await user.isPasswordCorrect(password)
+
+  if(!isPasswordValid){
+    throw new ApiError(401, "passwrd is incorrect")
+  }
+  const {accessToken, refreshToken}= await generateAccessAndrefreshTokens(user._id)
+// after the mongoose model got updated
+// This is fetching the user information that you want to send back as user data, not the token itself. 
+  const loggedInUser= await User.findById(user._id).select("-password, -refreshToken")
+  // now send tokens via cookies
+ const options={
+  httpOnly:true,
+secure:true
+// when we do both true , now user can only see the cookies , but cant modify it , only backend can modify it
+ }
+
+ return res.status(200).cookie("accessToken",accessToken, options)
+ .cookie("refreshToken", refreshToken, options)
+ .json(
+  new ApiResponse(200,{ user: loggedInUser, acesstoken, refreshToken}, "user logged in successfully")
+ )
+
+}
+)
 
 
-export  {registerUser}
+
+export  {registerUser,
+loginUser
+}

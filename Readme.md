@@ -1,6 +1,7 @@
 # an Youtube clone
 # to use import instead of require , we need to add the type:module in the package.json.
 # this is module js, the  other one is commonJs
+# In JavaScript, async is a keyword used to declare asynchronous functions, which allow your program to perform long-running tasks—like fetching data from a server or loading a file—without freezing the user interface.When you prefix a function with async, it changes the function's behavior in two fundamental ways: it always returns a Promise, and it unlocks the use of the await keyword inside its body.
 # after that install nodemon for automatic server restart
 # after this , the nodemon will restart the server , but we have to tell him na ki restart kro, so in the package.json , in scripts , instead of test , the whole line (since we dnt need test), we write ,
 "dev": "nodemon src/index.js"
@@ -648,3 +649,34 @@ This is probably the easiest mental model.
 
 
    # to test by using postman, first open it and select the http methose , we are now using POST . Then select body and from the drop down menu select the form data if u wanna send fioes too along with the data then select form-data , and if only data , then u can use json and form-data both. 
+
+   # we can do many thungs in postman, forst we can make an collection , first make an folder and then inside that we can add ouyr request GET or POST
+   # tyen instead of rewriting the full api loink ever\y time we can make envrionment.for that , fjrst go to the enviro0nment and tyhen make new enviro0nment name server and in value paste the chunkof the loink that will be always same and save it and at the top instead of no9 environment select the MTtube option , now in the collection , instead of the whole api link , we can ise {{ and select the server varibale and then the other chunk of the api
+
+   # postman vid timestamp= chai aur backend , vid no 14 , :28 min
+
+   # we give acessToken to the browser but we dnt save it , but we save refreshToken in the databases.n 
+
+   # this is a nirmal user document= user = {
+    _id: "abc123",
+    username: "himangshu",
+    email: "abc@gmail.com",
+    password: "hashedPassword",
+    ...
+}
+
+
+# Sure. The simplest way to remember it:
+
+1. After login, backend generates an access token and a refresh token.
+2. Access token is short-lived and is used to access protected APIs.
+3. When the access token expires, the browser uses the refresh token to request a new access token.
+4. Backend verifies the refresh token and, if valid, generates a new access token.
+5. The browser uses the new access token for further API requests.
+6. Refresh token lasts longer and is mainly used to get new access tokens.
+# Yes, the browser has to retain the tokens somehow so they can be used later.
+
+Commonly they are stored as:
+
+1. HTTP-only cookies → browser stores them and automatically sends them with requests. This is a common/safe approach. javascript cant read this
+2. localStorage/sessionStorage → JavaScript can store and read them, but this has greater security risks if the site has an XSS vulnerability.
