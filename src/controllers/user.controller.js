@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import {uploadOnCloudanary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
+import jwt from "jsonwebtoken"
 // well this is coming from the secodn steo mean from the login page part. 
 // since we will use the access token thing many times , so we make an methode for this amd whenever we neeed to gemerate access token ,we just call it
 
@@ -26,13 +27,6 @@ const generateAccessAndrefreshTokens= async(userId)=>{
 throw new ApiError(500, "somethng went wrong while generating refresh and acces token")
   }
 }
-
-
-
-
-
-
-
 
 const registerUser= asyncHandler(async(req, res)=>{
   // get user details from frontend. 
@@ -143,7 +137,7 @@ const loginUser=asyncHandler(async(req, res)=>{
   */ 
 
    const {username, email, password}=req.body 
-   if(!username || !email){
+   if(!username && !email){
     throw new ApiError(400,"username or email is required")
    }
 // In Mongoose, findOne() searches your MongoDB collection and returns the first document that matches your condition.
@@ -189,7 +183,75 @@ secure:true
 )
 
 
+// now we will see how to log out
+const logoutUser= asyncHandler(async(req, res)=>{
+  // we have to ckear the cookies , and also remember we have to reset the refreshtoken in the database , cuz next time log in , the token willbe different.
+  // so now here  even if we want the databse data , web dnt have access tot he User cuz we dnt have the userid kind of thung just like abive , so here we need middlewere
+  User.findByIdAndUpdate(
+    req.user._id, 
+    {
+      $set:{
+        refreshToken:undefined
+      }
+    },
+    {
+      new: true
+    }
+  )
+
+  const options={
+    httpOnly:true,
+    secure:true,
+    
+  }
+  return res.status(200)
+  .clearCookie("accessToken", options)
+  .clearCookie("accessToken", options)
+  .json(new ApiResponse(200, {}, "user logged out successfully"))
+})
+
+
+
+
+
+
+const refreshAccessToken= asyncHandler(async(req, res)=>{
+   const incomingRefreshToken= req.cookies.refreshtoken ||  req.body // req.body is for mobile let say someone is using the web in phone.
+   if (!incomingRefreshToken){
+    throw new ApiError(401, "unauthorised request ")
+   }
+try {
+  const decodedToken= jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+  // now since its decoded now and win the generation of the refreshtoken, we only add one thing thatbis _id , so now we can find the user bgy us8ng _id using a mongodb query
+  const user= await User.findById(decodedToken?._id)
+  if(!user){
+    throw new ApiError(401, "invalid access token")
+  }
+  if(incomingRefreshToken !=user?.refreshToken){
+    throw new ApiError(401, "refreshtoken is expired or used")
+  }
+  /* jwt.verify() only checks whether the refresh token is genuine and valid—meaning it was created using your REFRESH_TOKEN_SECRET and has not expired. It does not check whether that token is the currently stored/active refresh token in your database. For example, suppose the server creates Token A and stores Token A in MongoDB. Later, when the user refreshes, the server creates Token B and replaces Token A with Token B in the database. Token A may still be a genuine, non-expired JWT, so jwt.verify(Token A, secret) can succeed. But Token A is no longer the active token because the database now contains Token B. Therefore, if (incomingRefreshToken != user.refreshToken) compares the incoming token with the database to make sure it is still the latest active refresh token. In short, jwt.verify() checks "Is this a genuine, non-expired token?" while the database comparison checks "Is this still the active token for this user?"
+   */
+  
+  
+  const options={
+    httpOnly:true,
+    secure:true
+  }
+  const {accessToken,newrefreshToken}= await generateAccessAndrefreshTokens(user._id)
+  return res.status(200)
+  .cookie("accessToken", accessToken, options)
+  .cookie("refreshToken", newrefreshToken, options)
+  .json(new ApiResponse(200, {accessToken, newrefreshToken}, "access token refreshed successfully"))
+} catch (error) {
+  throw new ApiError(401, error?.message || "Invalid refresh token")
+  
+}
+
+  })
 
 export  {registerUser,
-loginUser
+loginUser, 
+logoutUser,
+refreshAccessToken
 }

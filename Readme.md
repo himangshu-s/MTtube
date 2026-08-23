@@ -680,3 +680,9 @@ Commonly they are stored as:
 
 1. HTTP-only cookies → browser stores them and automatically sends them with requests. This is a common/safe approach. javascript cant read this
 2. localStorage/sessionStorage → JavaScript can store and read them, but this has greater security risks if the site has an XSS vulnerability.
+
+# cookieParser() is middleware that helps you READ cookies coming from the browser.
+
+#  the res and req are the express object, express provides them the acess to send coookie.
+
+# so res.cookie(...)    doesn't depend on cookieParser() to create the cookie.
