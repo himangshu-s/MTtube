@@ -16,7 +16,7 @@ const asyncHandler =(requestHandler)=>{
  }
 
 
-export default asyncHandler;
+export { asyncHandler};
 /* asyncHandler takes an async requestHandler function as an
  argument and returns a new Express middleware
   function (req, res, next). When a request comes ,  Express executes this returned

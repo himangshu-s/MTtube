@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler.js"
+import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import {uploadOnCloudanary} from "../utils/cloudinary.js"
@@ -250,8 +250,61 @@ try {
 
   })
 
+
+  const changCurrentpassword= asyncHandler(async(req,res)=>{
+    // look yhan  hume yeh headche nhi lena ki user logged in hai ki nhi , yeh sb cuz uske liye hum middleware lga denge auth,middleware wala. 
+     const {oldPassword, newPassword}= req.body
+
+// so since hum middleware lagayenge m since iss controller me aane se phle woh middleware mai jayega , so waha we have req.user=user, means user ka ccess iss co0ntroller kempass bhi hoga and waha se we can find _id
+
+     const user= await User.findById(req.user?._id)
+const isPasswordCorrect= await user.isPasswordCorrect(oldPassword)
+
+
+if(!isPasswordCorrect){
+  throw new ApiError(401, "invalid old password")
+}
+  // now we have to set the new password. 
+  user.password=newPassword
+  await user.save({validateBeforeSave: false})
+return res.status(200).json(new ApiResponse(200, {}, "password changed successfully"))
+
+  })
+// let say we need current user , now if we are logged in , then we know that the wuth middlewere has run and there we injected req.user=user, so fromhere we can get the current user.
+  const getCurrentUser= asynchandler(async(req,res)=>{
+    return res
+    .status(200)
+    .json(200, req.user,"current user fetched successfully")
+
+  })
+
+  const updateAccountDetails=asyncHandler(async(req, res)=>{
+    const{fullName, email}=req.body
+    
+    if(!fullName && !email){
+      throw new ApiError(400, "fullName or email is required")
+
+    }
+    const user= User.findByIdAndUpdate(req.user?._id, {
+       $set:{
+        fullName: fullName,
+        email: email
+       }
+    },
+    {new: true}
+    ).select("-password")
+
+    return res.status(200).json(new ApiResponse(200, user, "user details updated successfully"))
+  })
+
 export  {registerUser,
 loginUser, 
 logoutUser,
-refreshAccessToken
+refreshAccessToken,
+changCurrentpassword,
+getCurrentUser
 }
+
+
+// if u want to update a file, then use a different cntroller or endpoint for that in the production level projects. 
+// but here we will do this only in this controller. 

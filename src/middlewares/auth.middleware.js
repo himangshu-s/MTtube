@@ -1,14 +1,14 @@
 import {ApiError} from "../utils/apiError.js";
-import {asyncHandler} from "express-async-handler";
+import {asyncHandler} from "../utils/asyncHandler.js"
 import jwt from "jsonwebtoken";
 import {User} from "../models/user.model.js";
-export const verifyjwt= asyncHandler(async(req,res,next)=>{
+export const verifyJWT= asyncHandler(async(req,res,next)=>{
 // Login creates the token.
 //verifyjwt checks the token later whenever the user tries to access a protected route.
 try {
     // when a request is amde browser send the cookies with req 
        const token=  req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "") // a client also sent= Authorization: Bearer eyJhbGciOi...
-    // means ya toh cookies se nikal lo ya request header se nikal lo
+    // means ya  toh cookies se nikal lo ya request header se nikal lo
     
     
     if (!token){
