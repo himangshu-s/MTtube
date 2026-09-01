@@ -297,12 +297,162 @@ return res.status(200).json(new ApiResponse(200, {}, "password changed successfu
     return res.status(200).json(new ApiResponse(200, user, "user details updated successfully"))
   })
 
+
+
+  const updateUserAvatar =asyncHandler(async(req,res)=>{
+    const avatarLocalPath= req.file?.path // we are not taking files here cuz , this time we are nit taking an array , we are only takjng a file , so .file
+if(!avatarLocalPath){
+  throw new ApiError(400, "avatar is required")
+}
+
+const avatar= uploadOnCloudanary(avatarLocalPath)
+
+if(!avatar.url){
+  throw new ApiError(500, "something went wrong while uploading avatar")
+}
+// now update 
+const user = await User.findByIdAndUpdate(req.user?._id,{
+// we are just updating the object
+$set:{
+  avatar:avatar.url
+}
+},
+{
+  new:true
+}).select("-password")
+ 
+
+
+return res
+.status(200)
+.json(
+  new ApiResponse(200, user, "user cover image updated successfully")
+)
+ 
+  })
+
+
+  const updateUserCoverImage =asyncHandler(async(req,res)=>{
+    const coverImageLocalPath= req.file?.path // we are not taking files here cuz , this time we are nit taking an array , we are only takjng a file , so .file
+if(!coverImageLocalPath){
+  throw new ApiError(400, "cover image is required")
+}
+
+const coverImage= uploadOnCloudanary(coverImageLocalPathLocalPath)
+
+if(!coverImage.url){
+  throw new ApiError(500, "something went wrong while uploading avatar")
+}
+// now update 
+const user = await User.findByIdAndUpdate(req.user?._id,{
+// we are just updating the object
+$set:{
+  coverImage:coverImage.url
+}
+},
+{
+  new:true
+}).select("-password")
+
+return res
+.status(200)
+.json(
+  new ApiResponse(200, user, "user cover image updated successfully")
+)
+ 
+  })
+
+
+const getUserChannelProfile= asyncHandler(async(req,res)=>{
+ 
+  const {username}=req.params
+  
+  if(!username?.trim()){
+    throw new ApiError(400, "username is required")
+  }
+
+ const channel=  await User.aggregate([ // the first filter or stage is match , then look up and then 
+  {
+    $match:{
+      username : username?.toLowerCase()
+    }
+  },
+  {
+    $lookup:{
+      from :"subscriptions",  // the model automatically becomes lower case and plural in the mongoose. 
+      localField:"_id",
+      foreignField:"channel",
+      as: "subscribers"
+    }
+  },
+  {
+    $lookup:{
+      from :"subscriptions",  // the model automatically becomes lower case and plural in the mongoose. 
+      localField:"_id",
+      foreignField:"subscriber",
+      as: "subscribedTo"
+    }
+    // so yhan pe we calculated the subsribers amd subscribedto in each stage or pipeline.
+
+  },
+  // now we have to add filed in the final document. 
+  {
+    $addFields:{
+      subscriberscount:{
+        $size:"$subscribers" // yahn pe subscribers mai bhi $ aayega , cuz now its a field in the final document. 
+
+      },
+      channelsSubscribedToCount:{
+        $size:"$subscribedTo"
+      }, 
+
+      isSubscribed:{
+        $cond:{
+          if: {$in:[req.user?._id, "$subscribers.subscriber"]}, // $in can count / go into array or object. 
+          then:true,
+          else: false
+        }
+      }
+    }
+  },
+
+  {
+    $project:{  // means hum kya kya filed chahte hai return ho pipeline se 
+      fullname:1,
+      username:1,
+      subscriberscount:1,
+      channelsSubscribedToCount:1,
+      isSubscribed:1,
+      avatar:1,
+      coverImage:1,
+      email:1
+    }
+  }
+
+ ])
+
+ if(!channel?.length){     // i think channel is an array.
+  throw new ApiError(404, "channel not found")
+ }
+
+
+ return res
+.status(200)
+.json(
+  new ApiResponse(200, channel[0], "channel profile fetched successfully")
+)
+})
+
 export  {registerUser,
 loginUser, 
 logoutUser,
 refreshAccessToken,
 changCurrentpassword,
-getCurrentUser
+getCurrentUser,
+updateAccountDetails,
+updateUserAvatar,
+updateUserCoverImage,
+getUserChannelProfile
 }
 
 
