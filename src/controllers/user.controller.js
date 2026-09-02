@@ -443,6 +443,59 @@ const getUserChannelProfile= asyncHandler(async(req,res)=>{
 )
 })
 
+
+const getWatchHistory= asyncHandler(async(req,res)=>{
+const user= await User.aggregate([
+  {
+    $match:{ // now yhan pe we cant use req.user._id directly cuz yhan pe mongoose kam nhi krta , aggregataion pipeline humesha directly mongodb main jata hai. so hum e yhan _id ko convert krna hoga, if forgt why then see the cha aur code backed series vid no 21.
+
+      _id: new mongoose.Types.ObjectId(req.user._id)
+    }
+  }, 
+  {
+    $lookup:{
+      from : "videos",
+      localfield:"watchHistory",
+      foreignField:"_id",
+      as: "watchHistory",
+// now since in the videos model there are alsoa filed owner , whuch s also a user , so to get its details also, we need to use a nested pipeline, if forgot, watch the vid no 21
+
+      pipleline:[
+{
+  $lookup:{
+    from:"users",
+    localField:"owner",
+    foreignField:"_id",
+    as:"owner",
+    pipleline:[
+      {
+        $project:{
+          fullname:1,
+          username:1,
+          avatar:1
+        }
+      }
+    ]
+  }
+},
+// to get the data from the array which owner is givng 
+{
+ $addFields:{
+  owner:{
+    $first:"owner" // since owner is an array, so we will take the first element of the array
+  }
+ }
+}
+      ]
+    }
+  }
+])
+
+return res
+.status(200)
+.json(new ApiResponse(200, user?.[0]?.watchHistory || [], "user watch history fetched successfully"))
+})
+
 export  {registerUser,
 loginUser, 
 logoutUser,
@@ -452,7 +505,8 @@ getCurrentUser,
 updateAccountDetails,
 updateUserAvatar,
 updateUserCoverImage,
-getUserChannelProfile
+getUserChannelProfile,
+getWatchHistory
 }
 
 
